@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
+import 'package:provider/provider.dart';
 import 'dashboard_screen.dart';
 import 'package:flutter_precio_verdadedor_principal/services/api_service.dart';
+import 'package:flutter_precio_verdadedor_principal/providers/auth_providers.dart';
+
 
 const users = {
   'usuario@example.com': 'pass123',
@@ -16,16 +19,21 @@ class LoginScreen extends StatelessWidget {
 
   Duration get loginTime => const Duration(milliseconds: 2250);
 
-  Future<String?> _authUser(LoginData data) {
-    debugPrint('Login - Name: ${data.name}, Password: ${data.password}');
-    return Future.delayed(loginTime).then((_) {
-      if (!users.containsKey(data.name)) {
-        return 'El usuario no existe';
+  Future<String?> _authUser(LoginData data, BuildContext context) {
+    final authService = AuthService();
+    return Future.delayed(loginTime).then((_) async {
+      try {
+        final token = await authService.login(data.name, data.password);
+        if (token != null) {
+          // Guardar el token en AuthProvider
+          await Provider.of<AuthProvider>(context, listen: false).setToken(token);
+          return null; // Éxito
+        } else {
+          return 'No se recibió un token válido';
+        }
+      } catch (e) {
+        return 'Error al iniciar sesión: $e';
       }
-      if (users[data.name] != data.password) {
-        return 'La contraseña no coincide';
-      }
-      return null; // Éxito
     });
   }
 
@@ -54,7 +62,7 @@ class LoginScreen extends StatelessWidget {
     return FlutterLogin(
       title: 'Mi App',
       // logo: const AssetImage('assets/logo.png'), // Descomenta si tienes un logo
-      onLogin: _authUser,
+      onLogin: (loginData) => _authUser(loginData, context),
       onSignup: _signupUser,
       onRecoverPassword: _recoverPassword,
       onSubmitAnimationCompleted: () {

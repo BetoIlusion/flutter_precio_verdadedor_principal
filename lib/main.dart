@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 import '/screens/dashboard_screen.dart';
 import '/screens/login_screen.dart';
+import 'package:provider/provider.dart';
+import 'providers/auth_providers.dart';
 
 void main() {
-  runApp(const MainApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => AuthProvider()..loadToken(), // Carga el token al iniciar
+      child: const MainApp(),
+    ),
+  );
 }
 
 class MainApp extends StatelessWidget {
@@ -19,7 +26,8 @@ class MainApp extends StatelessWidget {
             .copyWith(secondary: Colors.orange),
         textTheme: const TextTheme(
           bodyMedium: TextStyle(fontFamily: 'Roboto'),
-          titleLarge: TextStyle(fontFamily: 'Roboto', fontWeight: FontWeight.bold),
+          titleLarge:
+              TextStyle(fontFamily: 'Roboto', fontWeight: FontWeight.bold),
         ),
       ),
       initialRoute: LoginScreen.routeName,
