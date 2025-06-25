@@ -9,6 +9,7 @@ import 'package:flutter_precio_verdadedor_principal/providers/auth_providers.dar
 import 'cambiar_contrasena_screen.dart';
 import 'login_screen.dart';
 import 'GeminiPlatillosScreen.dart'; // 👈 Importación agregada
+import 'Gemini Saludable Screen.dart'; // 👈 Importación agregada
 
 class DashboardScreen extends StatefulWidget {
   static const routeName = '/dashboard';
@@ -116,7 +117,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dashboard'),
-        backgroundColor: Colors.green,
+        backgroundColor: Colors.teal,
       ),
       drawer: Drawer(
         child: ListView(
@@ -124,7 +125,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: [
             const DrawerHeader(
               decoration: BoxDecoration(
-                color: Colors.green,
+                color: Colors.teal,
               ),
               child: Text(
                 'Menú',
@@ -156,6 +157,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 );
               },
             ),
+            
+          
+              ListTile(
+              leading: const Icon(Icons.health_and_safety),// 👈 Ícono de manzana
+              title: const Text('Ver platillos saludables'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const GeminiSaludableScreen()),
+                );
+              },
+            ),
+            
             ListTile(
               leading: const Icon(Icons.logout),
               title: const Text('Cerrar sesión'),
@@ -174,7 +189,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             const Icon(
               Icons.shopping_cart,
               size: 80,
-              color: Colors.green,
+              color: Colors.teal,
             ),
             const SizedBox(height: 8),
             const Text(
@@ -203,7 +218,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               child: ElevatedButton(
                 onPressed: _buscarBajoPrecio,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
+                  backgroundColor:  Colors.teal,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -268,7 +283,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             const Icon(
                               Icons.shopping_bag,
                               size: 40,
-                              color: Colors.green,
+                              color:  Colors.teal,
                             ),
                             const SizedBox(height: 4),
                             Text(

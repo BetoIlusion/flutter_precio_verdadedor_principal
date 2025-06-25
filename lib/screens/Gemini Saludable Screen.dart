@@ -2,26 +2,26 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-class GeminiPlatillosScreen extends StatefulWidget {
-  const GeminiPlatillosScreen({super.key});
+class GeminiSaludableScreen extends StatefulWidget {
+  const GeminiSaludableScreen({Key? key}) : super(key: key);
 
   @override
-  State<GeminiPlatillosScreen> createState() => _GeminiPlatillosScreenState();
+  State<GeminiSaludableScreen> createState() => _GeminiSaludableScreenState();
 }
 
-class _GeminiPlatillosScreenState extends State<GeminiPlatillosScreen> {
-  final TextEditingController _ingredientesController = TextEditingController();
+class _GeminiSaludableScreenState extends State<GeminiSaludableScreen> {
+  final TextEditingController _condicionesController = TextEditingController();
   bool _loading = false;
   List<String> _recetas = [];
 
-  // API Key válida (tal como la usabas antes)
+  // Reemplaza con tu API Key válida
   final String apiKey = 'AIzaSyA1kCqmQjFvlVDRqGXCZzx0uinKiJjh8wM';
 
-  Future<void> consultarIA() async {
-    final ingredientes = _ingredientesController.text.trim();
-    if (ingredientes.isEmpty) {
+  Future<void> _generarSaludables() async {
+    final condiciones = _condicionesController.text.trim();
+    if (condiciones.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ingresa al menos un ingrediente')),
+        const SnackBar(content: Text('Ingresa alguna condición o meta (p. ej. diabetes, perder peso).')),
       );
       return;
     }
@@ -36,20 +36,20 @@ class _GeminiPlatillosScreenState extends State<GeminiPlatillosScreen> {
     );
 
     final prompt = """
-Genera 5 recetas fáciles y rápidas de preparar usando estos ingredientes: $ingredientes.
+Genera 3 recetas saludables y adecuadas para personas con las siguientes condiciones o metas: $condiciones.
+Cada receta debe ser nutritiva, baja en azúcar y calorías, y contener ingredientes accesibles.
 
-Cada receta debe aparecer en texto plano, sin asteriscos ni etiquetas HTML, y debe formatearse así:
-
-Receta #1:
-Nombre: Nombre del platillo
+Formato para cada receta (texto plano, sin marcadores HTML):
+Receta #n:
+Nombre: ...
 Ingredientes:
-- ingrediente 1
-- ingrediente 2
-Pasos de la preparacion:
-1. Paso uno
-2. Paso dos
+- ítem 1
+- ítem 2
+Pasos:
+1. ...
+2. ...
 
-Deja exactamente una línea en blanco entre cada receta.
+Deja una línea en blanco entre cada receta.
 """;
 
     try {
@@ -57,9 +57,7 @@ Deja exactamente una línea en blanco entre cada receta.
         url,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'contents': [
-            { 'parts': [ {'text': prompt} ] }
-          ],
+          'contents': [ { 'parts': [ {'text': prompt} ] } ],
           'generationConfig': { 'temperature': 0.7, 'maxOutputTokens': 512 }
         }),
       );
@@ -94,7 +92,7 @@ Deja exactamente una línea en blanco entre cada receta.
 
   @override
   void dispose() {
-    _ingredientesController.dispose();
+    _condicionesController.dispose();
     super.dispose();
   }
 
@@ -103,7 +101,7 @@ Deja exactamente una línea en blanco entre cada receta.
     final teal = Theme.of(context).primaryColor;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sugerencias de Platillos'),
+        title: const Text('Recetas Saludables'),
         backgroundColor: teal,
       ),
       body: Padding(
@@ -111,20 +109,22 @@ Deja exactamente una línea en blanco entre cada receta.
         child: Column(
           children: [
             TextField(
-              controller: _ingredientesController,
+              controller: _condicionesController,
               decoration: const InputDecoration(
-                hintText: 'Ej: arroz, papa, carne',
+                hintText: 'Ej: diabetes, perder peso, hipertensión',
+                labelText: 'Condición o meta',
                 border: OutlineInputBorder(),
               ),
               minLines: 1,
-              maxLines: 3,
-              onSubmitted: (_) => consultarIA(),
+              maxLines: 2,
+              textInputAction: TextInputAction.done,
+              onSubmitted: (_) => _generarSaludables(),
             ),
             const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: _loading ? null : consultarIA,
+                onPressed: _loading ? null : _generarSaludables,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: teal,
                   padding: const EdgeInsets.symmetric(vertical: 14),
@@ -132,19 +132,15 @@ Deja exactamente una línea en blanco entre cada receta.
                 child: _loading
                     ? const CircularProgressIndicator(color: Colors.white)
                     : const Text(
-                        'Generar platillos',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
+                        'Generar recetas saludables',
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                       ),
               ),
             ),
             const SizedBox(height: 20),
             Expanded(
               child: _recetas.isEmpty
-                  ? const Center(child: Text('Aquí aparecerán tus recetas'))
+                  ? const Center(child: Text('Aquí aparecerán las recetas'))
                   : ListView.separated(
                       itemCount: _recetas.length,
                       separatorBuilder: (_, __) => Divider(color: teal, thickness: 2),
