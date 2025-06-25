@@ -8,6 +8,7 @@ import 'BajoPrecioScrenn.dart';
 import 'package:flutter_precio_verdadedor_principal/providers/auth_providers.dart';
 import 'cambiar_contrasena_screen.dart';
 import 'login_screen.dart';
+import 'GeminiPlatillosScreen.dart'; // 👈 Importación agregada
 
 class DashboardScreen extends StatefulWidget {
   static const routeName = '/dashboard';
@@ -145,6 +146,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
               },
             ),
             ListTile(
+              leading: const Icon(Icons.restaurant_menu), // 👈 Ícono de platillo
+              title: const Text('Ver platillos recomendados'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const GeminiPlatillosScreen()),
+                );
+              },
+            ),
+            ListTile(
               leading: const Icon(Icons.logout),
               title: const Text('Cerrar sesión'),
               onTap: () {
@@ -227,7 +239,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               ),
             const SizedBox(height: 10),
-            // Carrete de productos (todos los productos)
             if (productos.isNotEmpty)
               SizedBox(
                 height: 100,
