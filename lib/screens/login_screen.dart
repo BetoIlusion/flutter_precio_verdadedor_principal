@@ -1,16 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
 import 'dashboard_screen.dart';
-import 'package:flutter_precio_verdadedor_principal/services/api_service.dart';
 import 'package:flutter_precio_verdadedor_principal/providers/auth_providers.dart';
-
-
-const users = {
-  'usuario@example.com': 'pass123',
-  'admin@example.com': 'admin',
-};
-
 
 class LoginScreen extends StatelessWidget {
   static const routeName = '/login';
@@ -19,41 +14,55 @@ class LoginScreen extends StatelessWidget {
 
   Duration get loginTime => const Duration(milliseconds: 2250);
 
-  Future<String?> _authUser(LoginData data, BuildContext context) {
-    final authService = AuthService();
-    return Future.delayed(loginTime).then((_) async {
-      try {
-        final token = await authService.login(data.name, data.password);
-        if (token != null) {
-          // Guardar el token en AuthProvider
-          await Provider.of<AuthProvider>(context, listen: false).setToken(token);
+  Future<String?> _authUser(LoginData data, BuildContext context) async {
+    try {
+      final response = await http.post(
+        Uri.parse('http://192.168.0.5:8000/api/auth/login'),
+        headers: {'Accept': 'application/json'},
+        body: {
+          'email': data.name,
+          'password': data.password,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+
+        final token = responseData['token'];
+        final user = responseData['user'];
+
+        if (token != null && user != null) {
+          await Provider.of<AuthProvider>(context, listen: false).setAuthData(
+            token,
+            user['id'],
+            user['name'],
+            user['email'],
+            user['telefono'],
+          );
           return null; // Éxito
         } else {
-          return 'No se recibió un token válido';
+          return 'Respuesta inválida del servidor';
         }
-      } catch (e) {
-        return 'Error al iniciar sesión: $e';
+      } else if (response.statusCode == 401) {
+        return 'Credenciales incorrectas';
+      } else {
+        return 'Error: ${response.statusCode}';
       }
-    });
+    } catch (e) {
+      return 'Error de conexión: $e';
+    }
   }
 
   Future<String?> _signupUser(SignupData data) {
-    debugPrint('Signup - Name: ${data.name}, Password: ${data.password}');
+    // Aquí podrías implementar el registro real si lo deseas
     return Future.delayed(loginTime).then((_) {
-      if (users.containsKey(data.name)) {
-        return 'El usuario ya existe';
-      }
-      return null; // Éxito
+      return 'El registro no está implementado aún';
     });
   }
 
   Future<String?> _recoverPassword(String name) {
-    debugPrint('Recover - Name: $name');
     return Future.delayed(loginTime).then((_) {
-      if (!users.containsKey(name)) {
-        return 'El usuario no existe';
-      }
-      return null; // Éxito
+      return 'La recuperación no está implementada aún';
     });
   }
 
@@ -61,7 +70,6 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return FlutterLogin(
       title: 'Mi App',
-      // logo: const AssetImage('assets/logo.png'), // Descomenta si tienes un logo
       onLogin: (loginData) => _authUser(loginData, context),
       onSignup: _signupUser,
       onRecoverPassword: _recoverPassword,
@@ -70,22 +78,20 @@ class LoginScreen extends StatelessWidget {
       },
       loginProviders: <LoginProvider>[
         LoginProvider(
-          icon: Icons.g_mobiledata, // Icono básico de Google (FontAwesome no está incluido por defecto)
+          icon: Icons.g_mobiledata,
           label: 'Google',
           callback: () async {
             debugPrint('Inicio de sesión con Google');
             await Future.delayed(loginTime);
-            debugPrint('Fin de sesión con Google');
             return null;
           },
         ),
         LoginProvider(
-          icon: Icons.facebook, // Icono básico de Facebook
+          icon: Icons.facebook,
           label: 'Facebook',
           callback: () async {
             debugPrint('Inicio de sesión con Facebook');
             await Future.delayed(loginTime);
-            debugPrint('Fin de sesión con Facebook');
             return null;
           },
         ),
@@ -108,9 +114,8 @@ class LoginScreen extends StatelessWidget {
         signupButton: 'Registrarse',
         forgotPasswordButton: '¿Olvidaste tu contraseña?',
       ),
-      hideForgotPasswordButton: false, // Mostrar opción de recuperación
-      //hideSignUpButton: false, // Mostrar opción de registro
-      footer: null, // Quitamos la marca de agua
+      hideForgotPasswordButton: false,
+      footer: null,
     );
   }
 }
