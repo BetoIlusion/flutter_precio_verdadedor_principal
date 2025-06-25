@@ -39,7 +39,7 @@ class _BajoPrecioScreenState extends State<BajoPrecioScreen> {
     }
 
     final url = Uri.parse(
-      'http://192.168.0.11:8000/api/tienda/productos/bajo-precio?mi_latitud=$miLatitud&mi_longitud=$miLongitud&id_producto=${widget.idProducto}'
+      'https://precioverdadero.superficct.com/api/tienda/productos/bajo-precio?mi_latitud=$miLatitud&mi_longitud=$miLongitud&id_producto=${widget.idProducto}'
     );
 
     try {
@@ -80,7 +80,7 @@ class _BajoPrecioScreenState extends State<BajoPrecioScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Tiendas con el producto seleccionado'),
-        backgroundColor: Colors.green,
+        backgroundColor: Colors.teal,
       ),
       body: cargando
           ? const Center(child: CircularProgressIndicator())
@@ -132,40 +132,44 @@ class _BajoPrecioScreenState extends State<BajoPrecioScreen> {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Nombre: ${item['nombre_tienda']}',
+                                        'Nombre: ${item['nombre_tienda'] ?? 'N/D'}',
                                         style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
-                                        'Precio: ${item['precio']} Bs',
+                                        'Precio: ${item['precio'] ?? 'N/D'} Bs',
                                         style: const TextStyle(fontSize: 16),
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
-                                        'Dirección: ${ubicacion['direccion']}',
+                                        'Dirección: ${ubicacion != null && ubicacion['direccion'] != null ? ubicacion['direccion'] : 'Ubicación no disponible'}',
                                         style: const TextStyle(fontSize: 14),
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
-                                        'Distancia: ${item['distancia'].toStringAsFixed(2)} km',
+                                        'Distancia: ${item['distancia'] != null ? (item['distancia'] as num).toStringAsFixed(2) : 'N/D'} km',
                                         style: const TextStyle(fontSize: 14),
                                       ),
                                     ],
                                   ),
                                 ),
                                 ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => MapaUbicacionPage(
-                                          latitud: double.parse(ubicacion['latitud']),
-                                          longitud: double.parse(ubicacion['longitud']),
-                                          nombreTienda: item['nombre_tienda'],
-                                        ),
-                                      ),
-                                    );
-                                  },
+                                  onPressed: ubicacion != null &&
+                                          ubicacion['latitud'] != null &&
+                                          ubicacion['longitud'] != null
+                                      ? () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => MapaUbicacionPage(
+                                                latitud: double.parse(ubicacion['latitud']),
+                                                longitud: double.parse(ubicacion['longitud']),
+                                                nombreTienda: item['nombre_tienda'] ?? '',
+                                              ),
+                                            ),
+                                          );
+                                        }
+                                      : null,
                                   child: const Text('Ver ubicación'),
                                 ),
                               ],

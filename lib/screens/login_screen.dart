@@ -17,7 +17,7 @@ class LoginScreen extends StatelessWidget {
   Future<String?> _authUser(LoginData data, BuildContext context) async {
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.0.5:8000/api/auth/login'),
+        Uri.parse('https://precioverdadero.superficct.com/api/auth/login'),
         headers: {'Accept': 'application/json'},
         body: {
           'email': data.name,

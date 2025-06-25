@@ -62,7 +62,7 @@ class _CambiarContrasenaScreenState extends State<CambiarContrasenaScreen> {
       }
 
       final response = await http.put(
-        Uri.parse('http://192.168.0.11:8000/api/auth/users/$userId'),
+        Uri.parse('https://precioverdadero.superficct.com/api/auth/users/$userId'),
         headers: {
           'Authorization': 'Bearer $token',
           'Accept': 'application/json',
@@ -111,7 +111,7 @@ class _CambiarContrasenaScreenState extends State<CambiarContrasenaScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Cambiar Contraseña / Datos'),
-        backgroundColor: Colors.green,
+        backgroundColor: Colors.teal,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -187,14 +187,17 @@ class _CambiarContrasenaScreenState extends State<CambiarContrasenaScreen> {
                 child: ElevatedButton(
                   onPressed: cargando ? null : _cambiarContrasena,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
+                    backgroundColor: Colors.teal,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
                   child: cargando
                       ? const CircularProgressIndicator(color: Colors.white)
                       : const Text(
                           'Actualizar datos',
-                          style: TextStyle(fontSize: 16),
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.black, // 
+                          ),
                         ),
                 ),
               ),

@@ -8,8 +8,9 @@ import 'BajoPrecioScrenn.dart';
 import 'package:flutter_precio_verdadedor_principal/providers/auth_providers.dart';
 import 'cambiar_contrasena_screen.dart';
 import 'login_screen.dart';
-import 'GeminiPlatillosScreen.dart'; // 👈 Importación agregada
-import 'Gemini Saludable Screen.dart'; // 👈 Importación agregada
+import 'GeminiPlatillosScreen.dart';
+import 'Gemini Saludable Screen.dart';
+import 'ManualUsuarioPage.dart';
 
 class DashboardScreen extends StatefulWidget {
   static const routeName = '/dashboard';
@@ -45,7 +46,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     try {
       final response = await http.get(
-        Uri.parse('http://192.168.0.11:8000/api/producto'),
+        Uri.parse('https://precioverdadero.superficct.com/api/producto'),
         headers: {
           'Authorization': 'Bearer $token',
           'Accept': 'application/json',
@@ -147,7 +148,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.restaurant_menu), // 👈 Ícono de platillo
+              leading: const Icon(Icons.restaurant_menu),
               title: const Text('Ver platillos recomendados'),
               onTap: () {
                 Navigator.pop(context);
@@ -157,10 +158,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 );
               },
             ),
-            
-          
-              ListTile(
-              leading: const Icon(Icons.health_and_safety),// 👈 Ícono de manzana
+            ListTile(
+              leading: const Icon(Icons.health_and_safety),
               title: const Text('Ver platillos saludables'),
               onTap: () {
                 Navigator.pop(context);
@@ -170,7 +169,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 );
               },
             ),
-            
+            ListTile(
+              leading: const Icon(Icons.menu_book),
+              title: const Text('Manual del Usuario'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ManualUsuarioPage()),
+                );
+              },
+            ),
             ListTile(
               leading: const Icon(Icons.logout),
               title: const Text('Cerrar sesión'),
@@ -182,124 +191,128 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ],
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            const Icon(
-              Icons.shopping_cart,
-              size: 80,
-              color: Colors.teal,
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              '¿Qué producto deseas buscar hoy?',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              const Icon(
+                Icons.shopping_cart,
+                size: 80,
+                color: Colors.teal,
               ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: searchController,
-              decoration: InputDecoration(
-                hintText: 'Ingrese nombre del producto',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+              const SizedBox(height: 8),
+              const Text(
+                '¿Qué producto deseas buscar hoy?',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
                 ),
-                prefixIcon: const Icon(Icons.search),
               ),
-              onChanged: _filtrarProductos,
-            ),
-            const SizedBox(height: 10),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _buscarBajoPrecio,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor:  Colors.teal,
-                  shape: RoundedRectangleBorder(
+              const SizedBox(height: 16),
+              TextField(
+                controller: searchController,
+                decoration: InputDecoration(
+                  hintText: 'Ingrese nombre del producto',
+                  border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  prefixIcon: const Icon(Icons.search),
                 ),
-                child: const Text(
-                  'Buscar',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.black,
-                  ),
-                ),
+                onChanged: _filtrarProductos,
               ),
-            ),
-            const SizedBox(height: 10),
-            if (mostrarLista)
-              Expanded(
-                child: ListView.builder(
-                  itemCount: productosFiltrados.length,
-                  itemBuilder: (context, index) {
-                    final producto = productosFiltrados[index];
-                    return ListTile(
-                      title: Text(producto['nombre']),
-                      onTap: () {
-                        searchController.text = producto['nombre'];
-                        setState(() {
-                          idProductoSeleccionado = producto['id'];
-                          mostrarLista = false;
-                        });
-                      },
-                    );
-                  },
-                ),
-              ),
-            const SizedBox(height: 10),
-            if (productos.isNotEmpty)
-              SizedBox(
-                height: 100,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: productos.length,
-                  itemBuilder: (context, index) {
-                    final producto = productos[index];
-                    return Container(
-                      width: 120,
-                      margin: const EdgeInsets.symmetric(horizontal: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.green.shade50,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.green.shade200),
-                      ),
-                      child: InkWell(
+              const SizedBox(height: 10),
+              if (mostrarLista)
+                SizedBox(
+                  height: 200,
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: productosFiltrados.length,
+                    itemBuilder: (context, index) {
+                      final producto = productosFiltrados[index];
+                      return ListTile(
+                        title: Text(producto['nombre']),
                         onTap: () {
                           searchController.text = producto['nombre'];
                           setState(() {
                             idProductoSeleccionado = producto['id'];
+                            mostrarLista = false;
                           });
                         },
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.shopping_bag,
-                              size: 40,
-                              color:  Colors.teal,
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              producto['nombre'],
-                              style: const TextStyle(fontSize: 14),
-                              overflow: TextOverflow.ellipsis,
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
+                ),
+              const SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _buscarBajoPrecio,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.teal,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  ),
+                  child: const Text(
+                    'Buscar',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.black,
+                    ),
+                  ),
                 ),
               ),
-          ],
+              const SizedBox(height: 10),
+              if (productos.isNotEmpty)
+                SizedBox(
+                  height: 100,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: productos.length,
+                    itemBuilder: (context, index) {
+                      final producto = productos[index];
+                      return Container(
+                        width: 120,
+                        margin: const EdgeInsets.symmetric(horizontal: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.green.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.green.shade200),
+                        ),
+                        child: InkWell(
+                          onTap: () {
+                            searchController.text = producto['nombre'];
+                            setState(() {
+                              idProductoSeleccionado = producto['id'];
+                            });
+                          },
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                Icons.shopping_bag,
+                                size: 40,
+                                color: Colors.teal,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                producto['nombre'],
+                                style: const TextStyle(fontSize: 14),
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );
